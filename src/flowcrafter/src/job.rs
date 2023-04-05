@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::fmt::Display;
 
 use yaml_rust::Yaml;
@@ -32,10 +33,8 @@ impl JobBuilder {
     }
 
     pub fn build(self) -> Result<Job, Error> {
-        let name = self.name.ok_or(Error::MissingField("name".into()))?;
-        let template = self
-            .template
-            .ok_or(Error::MissingField("template".into()))?;
+        let name = self.name.context("missing field 'name'")?;
+        let template = self.template.context("missing field 'template'")?;
 
         Ok(Job { name, template })
     }
@@ -59,19 +58,19 @@ mod tests {
 
     #[test]
     fn build_requires_name() {
-        let build = JobBuilder::new()
+        let error = JobBuilder::new()
             .template(Yaml::from_str("template"))
             .build()
             .unwrap_err();
 
-        assert_eq!(Error::MissingField("name".into()), build);
+        assert_eq!("missing field 'name'", error.to_string());
     }
 
     #[test]
     fn build_requires_template() {
-        let build = JobBuilder::new().name("name").build().unwrap_err();
+        let error = JobBuilder::new().name("name").build().unwrap_err();
 
-        assert_eq!(Error::MissingField("template".into()), build);
+        assert_eq!("missing field 'template'", error.to_string());
     }
 
     #[test]

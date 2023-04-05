@@ -12,3 +12,5 @@ repository.workspace = true
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+thiserror = "1.0.40"
+yaml-rust = "0.4.5"

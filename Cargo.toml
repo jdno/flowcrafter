@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "src/flowcrafter",
+]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2021"
+
+# Workspace inheritance was stabilized in Rust 1.64.0.
+# See https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html
+rust-version = "1.64"
+
+license = "MIT OR Apache-2.0"
+description = "Create and manage workflows for GitHub Actions"
+repository = "https://github.com/jdno/flowcrafter"

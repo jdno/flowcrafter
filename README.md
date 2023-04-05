@@ -1,6 +1,7 @@
-# 🚀 My Personal Template Repository
+# 🏗️ FlowCrafter
 
-This is a [template repository] for my personal projects.
+FlowCrafter is a command-line tool to create and manage workflows for
+[GitHub Actions].
 
 ## License
 
@@ -17,4 +18,4 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
 
-[template repository]: https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
+[github actions]: https://github.com/features/actions

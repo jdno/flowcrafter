@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::fmt::{Display, Formatter};
 
 use yaml_rust::Yaml;
@@ -39,10 +40,8 @@ impl WorkflowBuilder {
     }
 
     pub fn build(self) -> Result<Workflow, Error> {
-        let name = self.name.ok_or(Error::MissingField("name".into()))?;
-        let template = self
-            .template
-            .ok_or(Error::MissingField("template".into()))?;
+        let name = self.name.context("missing field 'name'")?;
+        let template = self.template.context("missing field 'template'")?;
         let jobs = self.jobs;
 
         Ok(Workflow {
@@ -71,19 +70,19 @@ mod tests {
 
     #[test]
     fn build_requires_name() {
-        let builder = WorkflowBuilder::new()
+        let error = WorkflowBuilder::new()
             .template(Yaml::from_str("template"))
             .build()
             .unwrap_err();
 
-        assert_eq!(Error::MissingField("name".into()), builder);
+        assert_eq!("missing field 'name'", error.to_string());
     }
 
     #[test]
     fn build_requires_template() {
-        let builder = WorkflowBuilder::new().name("name").build().unwrap_err();
+        let error = WorkflowBuilder::new().name("name").build().unwrap_err();
 
-        assert_eq!(Error::MissingField("template".into()), builder);
+        assert_eq!("missing field 'template'", error.to_string());
     }
 
     #[test]

@@ -1,9 +1,9 @@
 use thiserror::Error;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Error)]
+#[derive(Debug, Error)]
 pub enum Error {
-    #[error("Missing field: {0}")]
-    MissingField(String),
+    #[error(transparent)]
+    Unknown(#[from] anyhow::Error),
 }
 
 #[cfg(test)]

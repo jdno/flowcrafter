@@ -1,5 +1,8 @@
-use anyhow::{anyhow, Result};
 use std::path::PathBuf;
+
+use anyhow::{anyhow, Context, Result};
+
+use flowcrafter::{Configuration, LibraryConfiguration};
 
 use crate::commands::Command;
 
@@ -50,16 +53,19 @@ impl Init {
         Ok(directory)
     }
 
-    fn find_or_create_config(&self, config: PathBuf) -> Result<String> {
-        // TODO: Serialize default configuration and write to file
-        let content = "";
+    fn find_or_create_config(&self, config_path: PathBuf) -> Result<Configuration> {
+        let config = Configuration {
+            library: LibraryConfiguration {
+                repository: self.repository.clone(),
+            },
+        };
 
-        if !config.exists() {
-            std::fs::write(config, content)?;
-        }
+        let serialized_config =
+            serde_yaml::to_string(&config).context("failed to serialize default configuration")?;
 
-        // TODO: Return instance of `Configuration`
-        Ok(content.to_string())
+        std::fs::write(config_path, serialized_config)?;
+
+        Ok(config)
     }
 }
 
@@ -175,6 +181,6 @@ mod tests {
         let config = temp_dir.path().join(".github").join("flowcrafter.yml");
         let contents = std::fs::read_to_string(config).unwrap();
 
-        assert!(contents.is_empty());
+        assert!(contents.contains("owner/name"));
     }
 }

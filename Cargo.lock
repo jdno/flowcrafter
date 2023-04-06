@@ -408,6 +408,8 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
+ "flowcrafter",
+ "serde_yaml",
  "tempfile",
 ]
 

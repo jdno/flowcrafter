@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "src/flowcrafter",
+    "src/flowcrafter-cli",
 ]
 
 [workspace.package]

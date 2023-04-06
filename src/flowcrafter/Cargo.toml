@@ -13,5 +13,14 @@ repository.workspace = true
 
 [dependencies]
 anyhow = "1.0.70"
+base64 = "0.21.0"
+octocrab = { version = "0.19.0", features = ["rustls"] }
 thiserror = "1.0.40"
+url = "2.3.1"
 yaml-rust = "0.4.5"
+
+[dev-dependencies]
+indoc = "2.0.1"
+mockito = "1.0.2"
+serde_json = "1.0.95"
+tokio = { version = "1.27.0", features = ["full"] }

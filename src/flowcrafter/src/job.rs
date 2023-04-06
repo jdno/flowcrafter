@@ -17,6 +17,16 @@ pub struct JobBuilder {
     template: Option<Yaml>,
 }
 
+impl Job {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn template(&self) -> &Yaml {
+        &self.template
+    }
+}
+
 impl JobBuilder {
     pub fn new() -> Self {
         Self::default()

@@ -19,6 +19,20 @@ pub struct WorkflowBuilder {
     jobs: Vec<Job>,
 }
 
+impl Workflow {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn template(&self) -> &Yaml {
+        &self.template
+    }
+
+    pub fn jobs(&self) -> &[Job] {
+        &self.jobs
+    }
+}
+
 impl WorkflowBuilder {
     pub fn new() -> Self {
         Self::default()

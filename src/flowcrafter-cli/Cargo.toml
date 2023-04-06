@@ -1,0 +1,23 @@
+[package]
+name = "flowcrafter-cli"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "flowcrafter"
+path = "src/main.rs"
+
+# See more keys and their definitions at
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.70"
+clap = { version = "4.2.1", features = ["derive"] }
+tempfile = "3.5.0"
+
+[dev-dependencies]

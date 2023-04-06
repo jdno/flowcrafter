@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct Configuration {
-    library: LibraryConfiguration,
+    pub library: LibraryConfiguration,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct LibraryConfiguration {
-    repository: String,
+    pub repository: String,
 }
 
 #[cfg(test)]

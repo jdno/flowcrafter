@@ -1,7 +1,7 @@
 extern crate core;
 
 pub use self::{
-    configuration::Configuration,
+    configuration::{Configuration, LibraryConfiguration},
     error::Error,
     job::{Job, JobBuilder},
     library::{Library, LibraryBuilder},

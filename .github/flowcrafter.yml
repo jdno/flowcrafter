@@ -1,3 +1,5 @@
 ---
 library:
-  repository: jdno/workflows
+  repository:
+    owner: jdno
+    name: workflows

@@ -1,20 +1,18 @@
 use anyhow::Context;
 use std::fmt::Display;
 
-use yaml_rust::Yaml;
-
-use crate::Error;
+use crate::{Error, Template};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Job {
     name: String,
-    template: Yaml,
+    template: Template,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct JobBuilder {
     name: Option<String>,
-    template: Option<Yaml>,
+    template: Option<Template>,
 }
 
 impl Job {
@@ -22,7 +20,7 @@ impl Job {
         &self.name
     }
 
-    pub fn template(&self) -> &Yaml {
+    pub fn template(&self) -> &Template {
         &self.template
     }
 }
@@ -37,7 +35,7 @@ impl JobBuilder {
         self
     }
 
-    pub fn template(mut self, template: Yaml) -> Self {
+    pub fn template(mut self, template: Template) -> Self {
         self.template = Some(template);
         self
     }
@@ -69,7 +67,7 @@ mod tests {
     #[test]
     fn build_requires_name() {
         let error = JobBuilder::new()
-            .template(Yaml::from_str("template"))
+            .template(Template::new("template"))
             .build()
             .unwrap_err();
 
@@ -87,7 +85,7 @@ mod tests {
     fn trait_display() {
         let job = JobBuilder::new()
             .name("name")
-            .template(Yaml::from_str("template"))
+            .template(Template::new("template"))
             .build()
             .unwrap();
 

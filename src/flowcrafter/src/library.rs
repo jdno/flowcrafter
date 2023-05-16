@@ -6,7 +6,6 @@ use base64::{alphabet, Engine};
 use octocrab::models::repos::Content;
 use octocrab::Octocrab;
 use url::Url;
-use yaml_rust::Yaml;
 
 use crate::{Error, Job, JobBuilder, Workflow, WorkflowBuilder};
 
@@ -43,9 +42,10 @@ impl Library {
         let workflow = self.download(&path).await?;
         let content = self.decode_content(workflow)?;
 
-        let yaml = Yaml::from_str(&content);
-
-        WorkflowBuilder::new().name(name).template(yaml).build()
+        WorkflowBuilder::new()
+            .name(name)
+            .template(content.into())
+            .build()
     }
 
     pub async fn job(&self, workflow: &str, name: &str) -> Result<Job, Error> {
@@ -54,9 +54,10 @@ impl Library {
         let job = self.download(&path).await?;
         let content = self.decode_content(job)?;
 
-        let yaml = Yaml::from_str(&content);
-
-        JobBuilder::new().name(name).template(yaml).build()
+        JobBuilder::new()
+            .name(name)
+            .template(content.into())
+            .build()
     }
 
     async fn download(&self, path: &str) -> Result<Content, Error> {
@@ -148,6 +149,8 @@ impl Display for Library {
 mod tests {
     use indoc::indoc;
 
+    use crate::Template;
+
     use super::*;
 
     const WORKFLOW_RESPONSE: &str = indoc! {r#"
@@ -233,7 +236,7 @@ mod tests {
         let workflow = library.workflow("test").await.unwrap();
 
         assert_eq!("test", workflow.name());
-        assert_eq!(&Yaml::from_str(WORKFLOW), workflow.template());
+        assert_eq!(&Template::new(WORKFLOW), workflow.template());
     }
 
     #[tokio::test]
@@ -250,7 +253,7 @@ mod tests {
         let job = library.job("test", "job").await.unwrap();
 
         assert_eq!("job", job.name());
-        assert_eq!(&Yaml::from_str(JOB), job.template());
+        assert_eq!(&Template::new(JOB), job.template());
     }
 
     #[tokio::test]

@@ -5,6 +5,7 @@ pub use self::{
     error::Error,
     job::{Job, JobBuilder},
     library::{Library, LibraryBuilder},
+    template::Template,
     workflow::{Workflow, WorkflowBuilder},
 };
 
@@ -12,4 +13,5 @@ mod configuration;
 mod error;
 mod job;
 mod library;
+mod template;
 mod workflow;

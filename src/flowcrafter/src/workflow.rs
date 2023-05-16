@@ -1,21 +1,20 @@
-use anyhow::Context;
 use std::fmt::{Display, Formatter};
 
-use yaml_rust::Yaml;
+use anyhow::Context;
 
-use crate::{Error, Job};
+use crate::{Error, Job, Template};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Workflow {
     name: String,
-    template: Yaml,
+    template: Template,
     jobs: Vec<Job>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct WorkflowBuilder {
     name: Option<String>,
-    template: Option<Yaml>,
+    template: Option<Template>,
     jobs: Vec<Job>,
 }
 
@@ -24,7 +23,7 @@ impl Workflow {
         &self.name
     }
 
-    pub fn template(&self) -> &Yaml {
+    pub fn template(&self) -> &Template {
         &self.template
     }
 
@@ -43,7 +42,7 @@ impl WorkflowBuilder {
         self
     }
 
-    pub fn template(mut self, template: Yaml) -> Self {
+    pub fn template(mut self, template: Template) -> Self {
         self.template = Some(template);
         self
     }
@@ -85,7 +84,7 @@ mod tests {
     #[test]
     fn build_requires_name() {
         let error = WorkflowBuilder::new()
-            .template(Yaml::from_str("template"))
+            .template(Template::new("template"))
             .build()
             .unwrap_err();
 

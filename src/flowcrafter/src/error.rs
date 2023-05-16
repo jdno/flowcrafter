@@ -2,6 +2,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("{0}")]
+    Template(#[from] liquid::Error),
+
     #[error(transparent)]
     Unknown(#[from] anyhow::Error),
 }

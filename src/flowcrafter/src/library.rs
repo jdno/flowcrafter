@@ -7,7 +7,7 @@ use octocrab::models::repos::Content;
 use octocrab::Octocrab;
 use url::Url;
 
-use crate::{Error, Job, JobBuilder, Workflow, WorkflowBuilder};
+use crate::{Error, Job, JobBuilder, LibraryConfiguration, Workflow, WorkflowBuilder};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Library {
@@ -142,6 +142,17 @@ impl Default for LibraryBuilder {
 impl Display for Library {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}/{}", self.owner, self.name)
+    }
+}
+
+impl TryFrom<&LibraryConfiguration> for Library {
+    type Error = Error;
+
+    fn try_from(config: &LibraryConfiguration) -> Result<Self, Error> {
+        LibraryBuilder::new()
+            .owner(config.repository.owner.clone())
+            .name(config.repository.name.clone())
+            .build()
     }
 }
 

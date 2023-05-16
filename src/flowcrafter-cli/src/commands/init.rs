@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::{anyhow, Context, Result};
 
-use flowcrafter::{Configuration, LibraryConfiguration};
+use flowcrafter::{Configuration, LibraryConfiguration, RepositoryConfiguration};
 
 use crate::commands::Command;
 
@@ -54,9 +54,20 @@ impl Init {
     }
 
     fn find_or_create_config(&self, config_path: PathBuf) -> Result<Configuration> {
+        let parts: Vec<String> = self.repository.split('/').map(String::from).collect();
+
         let config = Configuration {
             library: LibraryConfiguration {
-                repository: self.repository.clone(),
+                repository: RepositoryConfiguration {
+                    owner: parts
+                        .get(0)
+                        .context("failed to get owner from repository input")?
+                        .clone(),
+                    name: parts
+                        .get(1)
+                        .context("failed to get name from repository input")?
+                        .clone(),
+                },
             },
         };
 
@@ -181,6 +192,7 @@ mod tests {
         let config = temp_dir.path().join(".github").join("flowcrafter.yml");
         let contents = std::fs::read_to_string(config).unwrap();
 
-        assert!(contents.contains("owner/name"));
+        assert!(contents.contains("owner: owner"));
+        assert!(contents.contains("name: name"));
     }
 }

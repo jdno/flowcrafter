@@ -7,7 +7,13 @@ pub struct Configuration {
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 pub struct LibraryConfiguration {
-    pub repository: String,
+    pub repository: RepositoryConfiguration,
+}
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, Deserialize, Serialize)]
+pub struct RepositoryConfiguration {
+    pub owner: String,
+    pub name: String,
 }
 
 #[cfg(test)]
@@ -18,15 +24,21 @@ mod tests {
 
     const CONFIG: &str = indoc! {r#"
         library:
-          repository: owner/name
+          repository:
+            owner: owner
+            name: name
     "#};
 
     #[test]
     fn trait_deserialize() {
         let config: Configuration = serde_yaml::from_str(CONFIG).unwrap();
+
         assert_eq!(
             LibraryConfiguration {
-                repository: "owner/name".to_string()
+                repository: RepositoryConfiguration {
+                    owner: "owner".to_string(),
+                    name: "name".to_string(),
+                },
             },
             config.library
         );
@@ -36,7 +48,10 @@ mod tests {
     fn trait_serialize() {
         let config = Configuration {
             library: LibraryConfiguration {
-                repository: "owner/name".to_string(),
+                repository: RepositoryConfiguration {
+                    owner: "owner".to_string(),
+                    name: "name".to_string(),
+                },
             },
         };
 

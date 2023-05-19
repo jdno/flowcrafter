@@ -1,17 +1,27 @@
-[workspace]
-members = [
-    "src/flowcrafter",
-    "src/flowcrafter-cli",
-]
+[package]
+name = "flowcrafter"
 
-[workspace.package]
 version = "0.0.0"
 edition = "2021"
-
-# Workspace inheritance was stabilized in Rust 1.64.0.
-# See https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html
-rust-version = "1.64"
 
 license = "MIT OR Apache-2.0"
 description = "Create and manage workflows for GitHub Actions"
 repository = "https://github.com/jdno/flowcrafter"
+
+# See more keys and their definitions at
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.71"
+async-trait = "0.1.68"
+base64 = "0.21.0"
+liquid = "0.26.1"
+octocrab = "0.22.0"
+thiserror = "1.0.40"
+tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
+url = "2.3.1"
+
+[dev-dependencies]
+indoc = "2.0.1"
+mockito = "1.0.2"
+serde_json = "1.0.96"

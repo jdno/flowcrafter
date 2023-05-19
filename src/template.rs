@@ -1,9 +1,5 @@
 use std::fmt::{Display, Formatter};
 
-use liquid::{Object, ParserBuilder};
-
-use crate::Error;
-
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct Template(String);
 
@@ -12,12 +8,8 @@ impl Template {
         Self(template.into())
     }
 
-    pub fn render(&self, globals: &Object) -> Result<String, Error> {
-        let template = ParserBuilder::with_stdlib().build()?.parse(&self.0)?;
-
-        let output = template.render(&globals)?;
-
-        Ok(output)
+    pub fn get(&self) -> &str {
+        &self.0
     }
 }
 
@@ -41,35 +33,19 @@ impl From<String> for Template {
 
 #[cfg(test)]
 mod tests {
-    use liquid::{object, Object};
-
     use super::*;
 
     #[test]
-    fn render_empty() {
-        let template = Template::new("");
+    fn get() {
+        let template = Template::new("{{foo}}");
 
-        let render = template.render(&Object::new()).unwrap();
-
-        assert_eq!("", render);
-    }
-
-    #[test]
-    fn render_template() {
-        let template = Template::new("{{num}}");
-
-        let render = template
-            .render(&object!({
-                "num": 42
-            }))
-            .unwrap();
-
-        assert_eq!("42", render);
+        assert_eq!("{{foo}}", template.get());
     }
 
     #[test]
     fn trait_display() {
         let template = Template::new("{{foo}}");
+
         assert_eq!("{{foo}}", format!("{}", template));
     }
 

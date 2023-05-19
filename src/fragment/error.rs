@@ -1,12 +1,9 @@
 use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("{0}")]
-    Template(#[from] liquid::Error),
-
-    #[error(transparent)]
-    Unknown(#[from] anyhow::Error),
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Error)]
+pub enum FragmentError {
+    #[error("missing field '{0}'")]
+    MissingField(&'static str),
 }
 
 #[cfg(test)]
@@ -16,18 +13,18 @@ mod tests {
     #[test]
     fn trait_send() {
         fn assert_send<T: Send>() {}
-        assert_send::<Error>();
+        assert_send::<FragmentError>();
     }
 
     #[test]
     fn trait_sync() {
         fn assert_sync<T: Sync>() {}
-        assert_sync::<Error>();
+        assert_sync::<FragmentError>();
     }
 
     #[test]
     fn trait_unpin() {
         fn assert_unpin<T: Unpin>() {}
-        assert_unpin::<Error>();
+        assert_unpin::<FragmentError>();
     }
 }

@@ -17,6 +17,7 @@ async-trait = "0.1.68"
 base64 = "0.21.0"
 liquid = "0.26.1"
 octocrab = "0.22.0"
+serde = { version = "1.0.163", optional = true, features = ["derive"] }
 thiserror = "1.0.40"
 tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
 url = "2.3.1"

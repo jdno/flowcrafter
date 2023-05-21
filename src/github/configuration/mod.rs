@@ -10,6 +10,7 @@ pub use self::builder::GitHubConfigurationBuilder;
 mod builder;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GitHubConfiguration {
     instance: Url,
     owner: Owner,

@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Repository(String);
 
 impl Repository {

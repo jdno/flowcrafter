@@ -26,11 +26,12 @@ impl<'a> GitHubLibrary<'a> {
         let file = self.fetch_from_github(path).await?;
         let content = self.decode_content(file)?;
 
-        Fragment::build()
+        let fragment = Fragment::builder()
             .name(name)
             .template(Template::new(content))
-            .build()
-            .map_err(Error::from)
+            .build();
+
+        Ok(fragment)
     }
 
     async fn fetch_from_github(&self, path: &str) -> Result<Content, Error> {
@@ -158,12 +159,11 @@ mod tests {
     "#};
 
     fn build_config(server_url: &str) -> GitHubConfiguration {
-        GitHubConfiguration::build()
+        GitHubConfiguration::builder()
             .instance(server_url.parse().unwrap())
             .owner("owner".into())
             .repository("name".into())
             .build()
-            .unwrap()
     }
 
     #[tokio::test]
@@ -274,11 +274,10 @@ mod tests {
 
     #[test]
     fn trait_display() {
-        let configuration = GitHubConfiguration::build()
+        let configuration = GitHubConfiguration::builder()
             .owner(Owner::from("jdno"))
             .repository(Repository::from("flowcrafter"))
-            .build()
-            .unwrap();
+            .build();
 
         let library = GitHubLibrary::new(&configuration);
 

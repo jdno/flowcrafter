@@ -1,5 +1,5 @@
----
 library:
-  repository:
+  github:
+    instance: https://api.github.com/
     owner: jdno
-    name: workflows
+    repository: workflows

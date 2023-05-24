@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+#[cfg(feature = "cli")]
+use crate::cli::CliError;
 use crate::fragment::FragmentError;
 use crate::github::{Owner, Repository};
 
@@ -13,6 +15,10 @@ pub enum Error {
 
     #[error("{0}")]
     GitHub(#[from] octocrab::Error),
+
+    #[cfg(feature = "cli")]
+    #[error("{0}")]
+    Cli(#[from] CliError),
 
     #[error("{0}")]
     InvalidTemplate(String),

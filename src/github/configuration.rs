@@ -1,27 +1,21 @@
 use std::fmt::Display;
 
+use typed_builder::TypedBuilder;
 use url::Url;
 
 use crate::github::owner::Owner;
 use crate::github::repository::Repository;
 
-pub use self::builder::GitHubConfigurationBuilder;
-
-mod builder;
-
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, TypedBuilder)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GitHubConfiguration {
+    #[builder(default = Url::parse("https://api.github.com").expect("failed to parse hard-coded GitHub URL 🤯"))]
     instance: Url,
     owner: Owner,
     repository: Repository,
 }
 
 impl GitHubConfiguration {
-    pub fn build() -> GitHubConfigurationBuilder {
-        GitHubConfigurationBuilder::new()
-    }
-
     pub fn instance(&self) -> &Url {
         &self.instance
     }
@@ -47,11 +41,10 @@ mod tests {
 
     #[test]
     fn trait_display() {
-        let configuration = GitHubConfiguration::build()
+        let configuration = GitHubConfiguration::builder()
             .owner(Owner::from("jdno"))
             .repository(Repository::from("flowcrafter"))
-            .build()
-            .unwrap();
+            .build();
 
         assert_eq!("repository: jdno/flowcrafter", configuration.to_string());
     }

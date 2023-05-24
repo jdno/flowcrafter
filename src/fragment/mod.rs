@@ -1,26 +1,23 @@
 use std::fmt::{Display, Formatter};
 
+use typed_builder::TypedBuilder;
+
 use crate::template::Template;
 
-pub use self::builder::FragmentBuilder;
 pub use self::error::FragmentError;
 pub use self::library::FragmentLibrary;
 
-mod builder;
 mod error;
 mod library;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, TypedBuilder)]
 pub struct Fragment {
+    #[builder(setter(into))]
     name: String,
     template: Template,
 }
 
 impl Fragment {
-    pub fn build() -> FragmentBuilder {
-        FragmentBuilder::new()
-    }
-
     pub fn name(&self) -> &str {
         &self.name
     }

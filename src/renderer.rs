@@ -67,13 +67,11 @@ impl<'a> Display for Renderer<'a> {
 mod tests {
     use indoc::indoc;
 
-    use crate::fragment::FragmentBuilder;
-
     use super::*;
 
     #[test]
     fn render() {
-        let workflow = FragmentBuilder::new()
+        let workflow = Fragment::builder()
             .name("workflow")
             .template(
                 indoc!(
@@ -86,14 +84,12 @@ mod tests {
                 )
                 .into(),
             )
-            .build()
-            .unwrap();
+            .build();
 
-        let jobs = vec![FragmentBuilder::new()
+        let jobs = vec![Fragment::builder()
             .name("job")
             .template("job".into())
-            .build()
-            .unwrap()];
+            .build()];
 
         let renderer = Renderer::new(&workflow, &jobs);
 
@@ -112,17 +108,15 @@ mod tests {
 
     #[test]
     fn render_empty_workflow() {
-        let workflow = FragmentBuilder::new()
+        let workflow = Fragment::builder()
             .name("workflow")
             .template("".into())
-            .build()
-            .unwrap();
+            .build();
 
-        let jobs = vec![FragmentBuilder::new()
+        let jobs = vec![Fragment::builder()
             .name("job")
             .template("job".into())
-            .build()
-            .unwrap()];
+            .build()];
 
         let renderer = Renderer::new(&workflow, &jobs);
 
@@ -133,17 +127,15 @@ mod tests {
 
     #[test]
     fn render_without_variable() {
-        let workflow = FragmentBuilder::new()
+        let workflow = Fragment::builder()
             .name("workflow")
             .template("workflow".into())
-            .build()
-            .unwrap();
+            .build();
 
-        let jobs = vec![FragmentBuilder::new()
+        let jobs = vec![Fragment::builder()
             .name("job")
             .template("job".into())
-            .build()
-            .unwrap()];
+            .build()];
 
         let renderer = Renderer::new(&workflow, &jobs);
 

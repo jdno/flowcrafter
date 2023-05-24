@@ -161,8 +161,8 @@ mod tests {
     fn build_config(server_url: &str) -> GitHubConfiguration {
         GitHubConfiguration::builder()
             .instance(server_url.parse().unwrap())
-            .owner("owner".into())
-            .repository("name".into())
+            .owner("owner")
+            .repository("name")
             .build()
     }
 

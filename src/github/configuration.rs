@@ -9,9 +9,14 @@ use crate::github::repository::Repository;
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, TypedBuilder)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GitHubConfiguration {
-    #[builder(default = Url::parse("https://api.github.com").expect("failed to parse hard-coded GitHub URL 🤯"))]
+    #[cfg_attr(feature = "serde", serde(default = "default_instance"))]
+    #[builder(default = default_instance())]
     instance: Url,
+
+    #[builder(setter(into))]
     owner: Owner,
+
+    #[builder(setter(into))]
     repository: Repository,
 }
 
@@ -35,9 +40,50 @@ impl Display for GitHubConfiguration {
     }
 }
 
+fn default_instance() -> Url {
+    Url::parse("https://api.github.com").expect("failed to parse hard-coded GitHub URL 🤯")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use indoc::indoc;
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn trait_deserialize_with_default_instance() {
+        let yaml = indoc!(
+            r#"
+            ---
+            owner: jdno
+            repository: flowcrafter
+            "#
+        );
+
+        let configuration = serde_yaml::from_str::<GitHubConfiguration>(yaml).unwrap();
+
+        assert_eq!(default_instance(), *configuration.instance());
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn trait_deserialize_with_custom_instance() {
+        let yaml = indoc!(
+            r#"
+            ---
+            instance: https://github.example.com
+            owner: jdno
+            repository: flowcrafter
+            "#
+        );
+
+        let configuration = serde_yaml::from_str::<GitHubConfiguration>(yaml).unwrap();
+
+        assert_eq!(
+            "https://github.example.com/",
+            configuration.instance().to_string()
+        );
+    }
 
     #[test]
     fn trait_display() {

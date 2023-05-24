@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 
 use async_trait::async_trait;
 
+use crate::cli::project::Project;
 use crate::cli::{CliError, Command, Configuration, LibraryConfiguration};
 use crate::github::{GitHubConfiguration, Owner, Repository};
 use crate::Error;
@@ -33,24 +34,6 @@ impl<'a> Init<'a> {
             .into();
 
         Ok((owner, repository))
-    }
-
-    fn find_project_directory(&self) -> Result<PathBuf, CliError> {
-        let mut current_directory = self.cwd.to_path_buf();
-
-        loop {
-            let git_directory = current_directory.join(".git");
-
-            if git_directory.exists() {
-                return Ok(current_directory);
-            }
-
-            if !current_directory.pop() {
-                return Err(CliError::CwdNotGitRepository(
-                    "flowcrafter must be run inside a Git repository",
-                ));
-            }
-        }
     }
 
     fn find_or_create_directory(&self, directory: PathBuf) -> Result<PathBuf, CliError> {
@@ -88,8 +71,8 @@ impl Command for Init<'_> {
     async fn run(&self) -> Result<(), Error> {
         let (owner, repository) = self.parse_repository()?;
 
-        let project_directory = self.find_project_directory()?;
-        let github_directory = self.find_or_create_directory(project_directory.join(".github"))?;
+        let project = Project::find(self.cwd.to_path_buf())?;
+        let github_directory = self.find_or_create_directory(project.path().join(".github"))?;
         let config_path = github_directory.join("flowcrafter.yml");
 
         let _config = self.find_or_create_config(config_path, owner, repository)?;

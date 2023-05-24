@@ -9,6 +9,7 @@ pub use self::{
 mod commands;
 mod configuration;
 mod error;
+mod project;
 
 #[derive(Clone, Debug, Parser)]
 pub struct Cli {

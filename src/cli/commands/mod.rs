@@ -1,8 +1,8 @@
+use anyhow::Error;
 use async_trait::async_trait;
 use clap::Subcommand;
 
 use crate::cli::project::Project;
-use crate::Error;
 
 pub use self::init::Init;
 

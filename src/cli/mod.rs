@@ -3,13 +3,11 @@ use clap::Parser;
 pub use self::{
     commands::*,
     configuration::{Configuration, LibraryConfiguration},
-    error::CliError,
     project::Project,
 };
 
 mod commands;
 mod configuration;
-mod error;
 mod project;
 
 #[derive(Clone, Debug, Parser)]

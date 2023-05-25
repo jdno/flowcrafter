@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use async_trait::async_trait;
 
@@ -12,13 +12,16 @@ const REPO_PARSE_ERROR: &str = "repository must be provided in the format 'owner
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Init<'a> {
+    project: &'a Project,
     repository: &'a str,
-    cwd: &'a Path,
 }
 
 impl<'a> Init<'a> {
-    pub fn new(repository: &'a str, cwd: &'a Path) -> Self {
-        Self { repository, cwd }
+    pub fn new(project: &'a Project, repository: &'a str) -> Self {
+        Self {
+            project,
+            repository,
+        }
     }
 
     fn parse_repository(self) -> Result<(Owner, Repository), CliError> {
@@ -71,8 +74,8 @@ impl Command for Init<'_> {
     async fn run(&self) -> Result<(), Error> {
         let (owner, repository) = self.parse_repository()?;
 
-        let project = Project::find(self.cwd.to_path_buf())?;
-        let github_directory = self.find_or_create_directory(project.path().join(".github"))?;
+        let github_directory =
+            self.find_or_create_directory(self.project.path().join(".github"))?;
         let config_path = github_directory.join("flowcrafter.yml");
 
         let _config = self.find_or_create_config(config_path, owner, repository)?;
@@ -106,7 +109,8 @@ mod tests {
 
     #[test]
     fn parse_repository() {
-        let command = Init::new("jdno/flowcrafter", Path::new("."));
+        let project = Project::at(".".into()).unwrap();
+        let command = Init::new(&project, "jdno/flowcrafter");
 
         let (owner, repository) = command.parse_repository().unwrap();
 
@@ -116,7 +120,8 @@ mod tests {
 
     #[test]
     fn parse_repository_with_invalid_format() {
-        let command = Init::new("flowcrafter", Path::new("."));
+        let project = Project::at(".".into()).unwrap();
+        let command = Init::new(&project, "flowcrafter");
 
         let result = command.parse_repository().unwrap_err();
 
@@ -126,7 +131,8 @@ mod tests {
     #[tokio::test]
     async fn run_parses_repository_input() {
         let temp_dir = temp_dir();
-        let init = Init::new("jdno/flowcrafter", temp_dir.path());
+        let project = Project::at(temp_dir.into_path()).unwrap();
+        let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
     }
@@ -134,7 +140,8 @@ mod tests {
     #[tokio::test]
     async fn run_errors_if_repository_not_owner_name() {
         let temp_dir = temp_dir();
-        let init = Init::new("flowcrafter", temp_dir.path());
+        let project = Project::at(temp_dir.into_path()).unwrap();
+        let init = Init::new(&project, "flowcrafter");
 
         let error = init.run().await.unwrap_err();
 
@@ -149,23 +156,10 @@ mod tests {
         let sub_dir = temp_dir.path().join("sub");
         std::fs::create_dir(sub_dir.clone()).unwrap();
 
-        let init = Init::new("jdno/flowcrafter", sub_dir.as_path());
+        let project = Project::find(sub_dir).unwrap();
+        let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
-    }
-
-    #[tokio::test]
-    async fn run_errors_if_not_git_repository() {
-        let temp_dir = tempdir().unwrap();
-
-        let init = Init::new("jdno/flowcrafter", temp_dir.path());
-
-        let error = init.run().await.unwrap_err();
-
-        assert_eq!(
-            "flowcrafter must be run inside a Git repository",
-            error.to_string()
-        );
     }
 
     #[tokio::test]
@@ -176,7 +170,8 @@ mod tests {
         let github_dir = temp_dir.path().join(".github").join("workflows");
         std::fs::create_dir_all(github_dir).unwrap();
 
-        let init = Init::new("jdno/flowcrafter", temp_dir.path());
+        let project = Project::at(temp_dir.into_path()).unwrap();
+        let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
     }
@@ -184,8 +179,8 @@ mod tests {
     #[tokio::test]
     async fn run_creates_github_directory() {
         let temp_dir = temp_dir();
-
-        let init = Init::new("jdno/flowcrafter", temp_dir.path());
+        let project = Project::at(temp_dir.path().to_path_buf()).unwrap();
+        let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
         assert!(temp_dir.path().join(".github").exists());
@@ -194,8 +189,8 @@ mod tests {
     #[tokio::test]
     async fn run_writes_flowcrafter_config() {
         let temp_dir = temp_dir();
-
-        let init = Init::new("jdno/flowcrafter", temp_dir.path());
+        let project = Project::at(temp_dir.path().to_path_buf()).unwrap();
+        let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
 

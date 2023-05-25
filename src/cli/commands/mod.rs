@@ -1,8 +1,7 @@
-use std::path::Path;
-
 use async_trait::async_trait;
 use clap::Subcommand;
 
+use crate::cli::project::Project;
 use crate::Error;
 
 pub use self::init::Init;
@@ -23,9 +22,9 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub async fn execute(command: &Commands, cwd: &Path) -> Result<(), Error> {
+    pub async fn execute(command: &Commands, project: &Project) -> Result<(), Error> {
         match command {
-            Commands::Init { repository } => Init::new(repository, cwd).run().await,
+            Commands::Init { repository } => Init::new(project, repository).run().await,
         }
     }
 }

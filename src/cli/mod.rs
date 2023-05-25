@@ -4,6 +4,7 @@ pub use self::{
     commands::*,
     configuration::{Configuration, LibraryConfiguration},
     error::CliError,
+    project::Project,
 };
 
 mod commands;

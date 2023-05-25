@@ -1,5 +1,4 @@
 use std::fmt::{Display, Formatter};
-use std::path::PathBuf;
 
 use anyhow::{Context, Error};
 use async_trait::async_trait;
@@ -33,23 +32,7 @@ impl<'a> Init<'a> {
         Ok((owner, repository))
     }
 
-    fn find_or_create_directory(&self, directory: PathBuf) -> Result<PathBuf, Error> {
-        if !directory.exists() {
-            std::fs::create_dir_all(directory.clone()).context(format!(
-                "failed to create '{}' directory in project",
-                directory.as_os_str().to_string_lossy()
-            ))?;
-        }
-
-        Ok(directory)
-    }
-
-    fn find_or_create_config(
-        &self,
-        config_path: PathBuf,
-        owner: Owner,
-        repository: Repository,
-    ) -> Result<Configuration, Error> {
+    fn create_config(&self, owner: Owner, repository: Repository) -> Result<Configuration, Error> {
         let config = Configuration::builder()
             .library(LibraryConfiguration::GitHub(
                 GitHubConfiguration::builder()
@@ -59,11 +42,7 @@ impl<'a> Init<'a> {
             ))
             .build();
 
-        let serialized_config =
-            serde_yaml::to_string(&config).context("failed to serialize configuration")?;
-
-        std::fs::write(config_path, serialized_config)
-            .context("failed to write configuration to file")?;
+        config.save(self.project)?;
 
         Ok(config)
     }
@@ -74,11 +53,7 @@ impl Command for Init<'_> {
     async fn run(&self) -> Result<(), Error> {
         let (owner, repository) = self.parse_repository()?;
 
-        let github_directory =
-            self.find_or_create_directory(self.project.path().join(".github"))?;
-        let config_path = github_directory.join("flowcrafter.yml");
-
-        let _config = self.find_or_create_config(config_path, owner, repository)?;
+        let _config = self.create_config(owner, repository)?;
 
         Ok(())
     }

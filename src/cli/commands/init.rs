@@ -1,12 +1,12 @@
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 
 use crate::cli::project::Project;
-use crate::cli::{CliError, Command, Configuration, LibraryConfiguration};
+use crate::cli::{Command, Configuration, LibraryConfiguration};
 use crate::github::{GitHubConfiguration, Owner, Repository};
-use crate::Error;
 
 const REPO_PARSE_ERROR: &str = "repository must be provided in the format 'owner/repository'";
 
@@ -24,24 +24,21 @@ impl<'a> Init<'a> {
         }
     }
 
-    fn parse_repository(self) -> Result<(Owner, Repository), CliError> {
+    fn parse_repository(self) -> Result<(Owner, Repository), Error> {
         let mut parts = self.repository.split('/');
 
-        let owner = parts
-            .next()
-            .ok_or(CliError::InvalidInput(REPO_PARSE_ERROR))?
-            .into();
-        let repository = parts
-            .next()
-            .ok_or(CliError::InvalidInput(REPO_PARSE_ERROR))?
-            .into();
+        let owner = parts.next().context(REPO_PARSE_ERROR)?.into();
+        let repository = parts.next().context(REPO_PARSE_ERROR)?.into();
 
         Ok((owner, repository))
     }
 
-    fn find_or_create_directory(&self, directory: PathBuf) -> Result<PathBuf, CliError> {
+    fn find_or_create_directory(&self, directory: PathBuf) -> Result<PathBuf, Error> {
         if !directory.exists() {
-            std::fs::create_dir_all(directory.clone())?;
+            std::fs::create_dir_all(directory.clone()).context(format!(
+                "failed to create '{}' directory in project",
+                directory.as_os_str().to_string_lossy()
+            ))?;
         }
 
         Ok(directory)
@@ -52,7 +49,7 @@ impl<'a> Init<'a> {
         config_path: PathBuf,
         owner: Owner,
         repository: Repository,
-    ) -> Result<Configuration, CliError> {
+    ) -> Result<Configuration, Error> {
         let config = Configuration::builder()
             .library(LibraryConfiguration::GitHub(
                 GitHubConfiguration::builder()
@@ -62,8 +59,11 @@ impl<'a> Init<'a> {
             ))
             .build();
 
-        let serialized_config = serde_yaml::to_string(&config)?;
-        std::fs::write(config_path, serialized_config)?;
+        let serialized_config =
+            serde_yaml::to_string(&config).context("failed to serialize configuration")?;
+
+        std::fs::write(config_path, serialized_config)
+            .context("failed to write configuration to file")?;
 
         Ok(config)
     }

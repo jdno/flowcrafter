@@ -1,6 +1,5 @@
+use anyhow::{anyhow, Error};
 use std::path::{Path, PathBuf};
-
-use crate::cli::CliError;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct Project {
@@ -8,19 +7,17 @@ pub struct Project {
 }
 
 impl Project {
-    pub fn at(path: PathBuf) -> Result<Self, CliError> {
+    pub fn at(path: PathBuf) -> Result<Self, Error> {
         let git_directory = path.join(".git");
 
         if !git_directory.exists() {
-            return Err(CliError::CwdNotGitRepository(
-                "flowcrafter must be run inside a Git repository",
-            ));
+            return Err(anyhow!("flowcrafter must be run inside a Git repository"));
         }
 
         Ok(Self { path })
     }
 
-    pub fn find(path: PathBuf) -> Result<Self, CliError> {
+    pub fn find(path: PathBuf) -> Result<Self, Error> {
         let mut current_directory = path;
 
         loop {

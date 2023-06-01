@@ -72,13 +72,13 @@ impl<'a> GitHubLibrary<'a> {
 }
 
 #[async_trait]
-impl<'a> FragmentLibrary for GitHubLibrary<'a> {
-    async fn workflow(&self, name: &str) -> Result<Fragment, Error> {
+impl<'a> FragmentLibrary<'a> for GitHubLibrary<'a> {
+    async fn workflow(&self, name: &'a str) -> Result<Fragment, Error> {
         let path = format!("{name}/workflow.yml");
         self.download(name, &path).await
     }
 
-    async fn job(&self, workflow: &str, name: &str) -> Result<Fragment, Error> {
+    async fn job(&self, workflow: &'a str, name: &'a str) -> Result<Fragment, Error> {
         let path = format!("{workflow}/{name}.yml");
         self.download(name, &path).await
     }

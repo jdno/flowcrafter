@@ -30,7 +30,6 @@ anyhow = "1.0.71"
 async-trait = "0.1.68"
 base64 = "0.21.0"
 clap = { version = "4.2.7", optional = true, features = ["derive"] }
-liquid = "0.26.1"
 octocrab = "0.22.0"
 serde = { version = "1.0.163", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.21", optional = true }

@@ -1,7 +1,5 @@
 use std::fmt::{Display, Formatter};
 
-use liquid::{object, Object, ParserBuilder};
-
 use crate::error::Error;
 use crate::fragment::Fragment;
 use crate::workflow::Workflow;
@@ -18,37 +16,35 @@ impl<'a> Renderer<'a> {
     }
 
     pub fn render(&self) -> Result<Workflow, Error> {
-        let job_templates = self.render_jobs()?;
+        let mut rendered = Vec::new();
 
-        let workflow_template = ParserBuilder::with_stdlib()
-            .build()?
-            .parse(self.workflow.template().get())?;
+        rendered.push(self.workflow.template().get().into());
 
-        let globals = object!({
-            "jobs": job_templates,
-        });
-
-        workflow_template
-            .render(&globals)
-            .map(Workflow::new)
-            .map_err(Error::from)
-    }
-
-    fn render_jobs(&self) -> Result<Vec<String>, Error> {
-        let globals = Object::new();
-
-        let mut jobs = Vec::new();
-        for job in self.jobs {
-            let job_template = ParserBuilder::with_stdlib()
-                .build()?
-                .parse(job.template().get())?;
-
-            let job_rendered = job_template.render(&globals)?;
-
-            jobs.push(job_rendered);
+        if !self.workflow.template().get().contains("jobs:") {
+            rendered.push("jobs:".into());
         }
 
-        Ok(jobs)
+        let rendered_jobs = self
+            .jobs
+            .iter()
+            .map(|job| self.indent(job.template().get()))
+            .collect::<Vec<String>>()
+            .join("\n");
+        rendered.push(rendered_jobs);
+
+        let rendered = rendered.join("\n");
+
+        Ok(Workflow::new(rendered))
+    }
+
+    fn indent(&self, content: &str) -> String {
+        let mut indented = String::new();
+
+        for line in content.lines() {
+            indented.push_str(&format!("  {}\n", line));
+        }
+
+        indented
     }
 }
 
@@ -69,37 +65,51 @@ mod tests {
 
     use super::*;
 
+    fn fragment(template: &str) -> Fragment {
+        Fragment::builder()
+            .name("test")
+            .template(template.into())
+            .build()
+    }
+
     #[test]
-    fn render() {
-        let workflow = Fragment::builder()
-            .name("workflow")
-            .template(
-                indoc!(
-                    r#"
-                    jobs:
-                    {%- for job in jobs %}
-                      - {{ job }}
-                    {% endfor -%}
-                    "#
-                )
-                .into(),
-            )
-            .build();
+    fn render_without_jobs_section() {
+        let workflow = fragment(indoc!(
+            r#"
+            ---
+            name: Workflow
+            "#
+        ));
 
-        let jobs = vec![Fragment::builder()
-            .name("job")
-            .template("job".into())
-            .build()];
+        let jobs = vec![
+            fragment(indoc!(
+                r#"
+                first:
+                  name: First
+                "#
+            )),
+            fragment(indoc!(
+                r#"
+                second:
+                  name: Second
+                "#
+            )),
+        ];
 
-        let renderer = Renderer::new(&workflow, &jobs);
-
-        let rendered = renderer.render().unwrap();
+        let rendered = Renderer::new(&workflow, &jobs).render().unwrap();
 
         assert_eq!(
             indoc!(
                 r#"
+                ---
+                name: Workflow
+
                 jobs:
-                  - job
+                  first:
+                    name: First
+
+                  second:
+                    name: Second
                 "#
             ),
             rendered.get()
@@ -107,41 +117,43 @@ mod tests {
     }
 
     #[test]
-    fn render_empty_workflow() {
-        let workflow = Fragment::builder()
-            .name("workflow")
-            .template("".into())
-            .build();
+    fn render_with_jobs_section() {
+        let workflow = fragment(indoc!(
+            r#"
+            ---
+            name: Workflow
 
-        let jobs = vec![Fragment::builder()
-            .name("job")
-            .template("job".into())
-            .build()];
+            jobs:
+              first:
+                name: First
+            "#
+        ));
 
-        let renderer = Renderer::new(&workflow, &jobs);
+        let jobs = vec![fragment(indoc!(
+            r#"
+            second:
+              name: Second
+            "#
+        ))];
 
-        let rendered = renderer.render().unwrap();
+        let rendered = Renderer::new(&workflow, &jobs).render().unwrap();
 
-        assert_eq!("", rendered.get());
-    }
+        assert_eq!(
+            indoc!(
+                r#"
+                ---
+                name: Workflow
 
-    #[test]
-    fn render_without_variable() {
-        let workflow = Fragment::builder()
-            .name("workflow")
-            .template("workflow".into())
-            .build();
+                jobs:
+                  first:
+                    name: First
 
-        let jobs = vec![Fragment::builder()
-            .name("job")
-            .template("job".into())
-            .build()];
-
-        let renderer = Renderer::new(&workflow, &jobs);
-
-        let rendered = renderer.render().unwrap();
-
-        assert_eq!("workflow", rendered.get());
+                  second:
+                    name: Second
+                "#
+            ),
+            rendered.get()
+        );
     }
 
     #[test]

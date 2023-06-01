@@ -1,0 +1,25 @@
+---
+name: Release
+
+"on":
+  release:
+    types:
+      - published
+
+jobs:
+  crates:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/jdno/rust:main
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache build artifacts
+        uses: swatinem/rust-cache@v2.2.1
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{ secrets.CRATES_TOKEN }} -v --all-features

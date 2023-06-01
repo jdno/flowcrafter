@@ -41,7 +41,11 @@ impl<'a> Renderer<'a> {
         let mut indented = String::new();
 
         for line in content.lines() {
-            indented.push_str(&format!("  {}\n", line));
+            if line.is_empty() {
+                indented.push('\n');
+            } else {
+                indented.push_str(&format!("  {}\n", line));
+            }
         }
 
         indented
@@ -86,6 +90,8 @@ mod tests {
                 r#"
                 first:
                   name: First
+
+                  runs-on: ubuntu-latest
                 "#
             )),
             fragment(indoc!(
@@ -107,6 +113,8 @@ mod tests {
                 jobs:
                   first:
                     name: First
+
+                    runs-on: ubuntu-latest
 
                   second:
                     name: Second

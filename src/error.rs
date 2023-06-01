@@ -21,7 +21,7 @@ pub enum Error {
     NotFound(String, Owner, Repository),
 
     #[error("failed to render workflow: {0}")]
-    Render(#[from] liquid::Error),
+    Render(String),
 
     #[error(transparent)]
     Unknown(#[from] anyhow::Error),

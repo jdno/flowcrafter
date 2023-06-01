@@ -56,11 +56,9 @@ impl<'a> GitHubLibrary<'a> {
             "template from GitHub is empty".into(),
         ))?;
 
-        let bytes = GeneralPurpose::new(&alphabet::STANDARD, PAD)
-            .decode(base64_encoded_file)
-            .map_err(|_| {
-                Error::InvalidTemplate("failed to base64 decode template from GitHub".into())
-            })?;
+        let bytes = base64_decode(&base64_encoded_file).map_err(|_| {
+            Error::InvalidTemplate("failed to base64 decode template from GitHub".into())
+        })?;
 
         String::from_utf8(bytes).map_err(|_| {
             Error::InvalidTemplate(format!(
@@ -88,6 +86,12 @@ impl Display for GitHubLibrary<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}/{}", self.config.owner(), self.config.repository())
     }
+}
+
+fn base64_decode(base64_encoded_string: &str) -> Result<Vec<u8>, base64::DecodeError> {
+    let sanitized_input = base64_encoded_string.replace('\n', "");
+
+    GeneralPurpose::new(&alphabet::STANDARD, PAD).decode(sanitized_input)
 }
 
 #[cfg(test)]
@@ -206,6 +210,37 @@ mod tests {
         mock.assert();
         assert_eq!("job", job.name());
         assert_eq!(&Template::new(JOB), job.template());
+    }
+
+    #[test]
+    fn base64_decode_ok() {
+        let base64_encoded_string =
+            "LS0tCm5hbWU6IEpvYgpydW5zLW9uOiB1YnVudHUtbGF0ZXN0CgpzdGVwczogW10K";
+
+        let decoded_bytes = base64_decode(base64_encoded_string).unwrap();
+        let decoded_string = String::from_utf8(decoded_bytes).unwrap();
+
+        assert_eq!(JOB, decoded_string);
+    }
+
+    #[test]
+    fn base64_decode_ignores_newlines() {
+        let base64_encoded_string = indoc!(
+            r#"
+            LS0tCm5hbW
+            U6IEpvYgpy
+            dW5zLW9uOi
+            B1YnVudHUt
+            bGF0ZXN0Cg
+            pzdGVwczog
+            W10K
+            "#
+        );
+
+        let decoded_bytes = base64_decode(base64_encoded_string).unwrap();
+        let decoded_string = String::from_utf8(decoded_bytes).unwrap();
+
+        assert_eq!(JOB, decoded_string);
     }
 
     #[test]

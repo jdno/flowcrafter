@@ -67,20 +67,9 @@ impl Display for Init<'_> {
 
 #[cfg(test)]
 mod tests {
-    use tempfile::{tempdir, TempDir};
+    use crate::cli::project::TestProject;
 
     use super::*;
-
-    fn temp_dir() -> TempDir {
-        // Create project directory
-        let temp_dir = tempdir().unwrap();
-
-        // Create .git directory
-        let git_dir = temp_dir.path().join(".git");
-        std::fs::create_dir(git_dir).unwrap();
-
-        temp_dir
-    }
 
     #[test]
     fn parse_repository() {
@@ -105,18 +94,16 @@ mod tests {
 
     #[tokio::test]
     async fn run_parses_repository_input() {
-        let temp_dir = temp_dir();
-        let project = Project::at(temp_dir.into_path()).unwrap();
-        let init = Init::new(&project, "jdno/flowcrafter");
+        let test_project = TestProject::new().unwrap();
+        let init = Init::new(test_project.project(), "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
     }
 
     #[tokio::test]
     async fn run_errors_if_repository_not_owner_name() {
-        let temp_dir = temp_dir();
-        let project = Project::at(temp_dir.into_path()).unwrap();
-        let init = Init::new(&project, "flowcrafter");
+        let test_project = TestProject::new().unwrap();
+        let init = Init::new(test_project.project(), "flowcrafter");
 
         let error = init.run().await.unwrap_err();
 
@@ -125,10 +112,10 @@ mod tests {
 
     #[tokio::test]
     async fn run_finds_git_repository() {
-        let temp_dir = temp_dir();
+        let test_project = TestProject::new().unwrap();
 
         // Create a subdirectory
-        let sub_dir = temp_dir.path().join("sub");
+        let sub_dir = test_project.path().join("sub");
         std::fs::create_dir(sub_dir.clone()).unwrap();
 
         let project = Project::find(sub_dir).unwrap();
@@ -139,13 +126,13 @@ mod tests {
 
     #[tokio::test]
     async fn run_finds_github_directory() {
-        let temp_dir = temp_dir();
+        let test_project = TestProject::new().unwrap();
 
         // Create a .github directory
-        let github_dir = temp_dir.path().join(".github").join("workflows");
+        let github_dir = test_project.path().join(".github").join("workflows");
         std::fs::create_dir_all(github_dir).unwrap();
 
-        let project = Project::at(temp_dir.into_path()).unwrap();
+        let project = Project::at(test_project.path().to_path_buf()).unwrap();
         let init = Init::new(&project, "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
@@ -153,23 +140,21 @@ mod tests {
 
     #[tokio::test]
     async fn run_creates_github_directory() {
-        let temp_dir = temp_dir();
-        let project = Project::at(temp_dir.path().to_path_buf()).unwrap();
-        let init = Init::new(&project, "jdno/flowcrafter");
+        let test_project = TestProject::new().unwrap();
+        let init = Init::new(test_project.project(), "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
-        assert!(temp_dir.path().join(".github").exists());
+        assert!(test_project.path().join(".github").exists());
     }
 
     #[tokio::test]
     async fn run_writes_flowcrafter_config() {
-        let temp_dir = temp_dir();
-        let project = Project::at(temp_dir.path().to_path_buf()).unwrap();
-        let init = Init::new(&project, "jdno/flowcrafter");
+        let test_project = TestProject::new().unwrap();
+        let init = Init::new(test_project.project(), "jdno/flowcrafter");
 
         assert!(init.run().await.is_ok());
 
-        let config = temp_dir.path().join(".github").join("flowcrafter.yml");
+        let config = test_project.path().join(".github").join("flowcrafter.yml");
         let contents = std::fs::read_to_string(config).unwrap();
 
         assert!(contents.contains("owner: jdno"));

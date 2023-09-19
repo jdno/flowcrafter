@@ -1,5 +1,8 @@
-use anyhow::{anyhow, Error};
 use std::path::{Path, PathBuf};
+
+use anyhow::{anyhow, Error};
+#[cfg(test)]
+use tempfile::{tempdir, TempDir};
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct Project {
@@ -38,13 +41,15 @@ impl Project {
 }
 
 #[cfg(test)]
-mod tests {
-    use tempfile::tempdir;
+#[derive(Debug)]
+pub struct TestProject {
+    temp_dir: TempDir,
+    project: Project,
+}
 
-    use super::*;
-
-    #[test]
-    fn at() {
+#[cfg(test)]
+impl TestProject {
+    pub fn new() -> Result<Self, Error> {
         // Create project directory
         let temp_dir = tempdir().unwrap();
 
@@ -52,7 +57,31 @@ mod tests {
         let git_dir = temp_dir.path().join(".git");
         std::fs::create_dir(git_dir).unwrap();
 
-        let project = Project::at(temp_dir.path().to_path_buf());
+        let project = Project::at(temp_dir.path().to_path_buf())?;
+
+        Ok(Self { temp_dir, project })
+    }
+
+    pub fn path(&self) -> &Path {
+        self.temp_dir.path()
+    }
+
+    pub fn project(&self) -> &Project {
+        &self.project
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use tempfile::tempdir;
+
+    use super::*;
+
+    #[test]
+    fn at() {
+        let test_project = TestProject::new().unwrap();
+
+        let project = Project::at(test_project.path().to_path_buf());
 
         assert!(project.is_ok());
     }
@@ -72,15 +101,10 @@ mod tests {
 
     #[test]
     fn find() {
-        // Create project directory
-        let temp_dir = tempdir().unwrap();
-
-        // Create .git directory
-        let git_dir = temp_dir.path().join(".git");
-        std::fs::create_dir(git_dir).unwrap();
+        let test_project = TestProject::new().unwrap();
 
         // Create a subdirectory
-        let sub_dir = temp_dir.path().join("sub");
+        let sub_dir = test_project.path().join("sub");
         std::fs::create_dir(sub_dir.clone()).unwrap();
 
         let project = Project::find(sub_dir);

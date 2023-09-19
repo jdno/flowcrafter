@@ -4,7 +4,7 @@ use anyhow::{Context, Error};
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
-use crate::cli::project::Project;
+use crate::Project;
 
 pub use self::library::LibraryConfiguration;
 

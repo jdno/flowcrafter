@@ -2,7 +2,8 @@ use anyhow::Context;
 use anyhow::Error;
 use clap::Parser;
 
-use flowcrafter::cli::{Cli, Commands, Project};
+use flowcrafter::cli::{Cli, Commands};
+use flowcrafter::Project;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

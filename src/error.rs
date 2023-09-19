@@ -1,7 +1,6 @@
 use thiserror::Error;
 
 use crate::fragment::FragmentError;
-use crate::github::{Owner, Repository};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -17,8 +16,11 @@ pub enum Error {
     #[error("{0}")]
     InvalidTemplate(String),
 
-    #[error("failed to find '{0}' in repository '{1}/{2}'")]
-    NotFound(String, Owner, Repository),
+    #[error("{0}")]
+    IO(#[from] std::io::Error),
+
+    #[error("failed to find '{0}' in {1}")]
+    NotFound(String, String),
 
     #[error("failed to render workflow: {0}")]
     Render(String),

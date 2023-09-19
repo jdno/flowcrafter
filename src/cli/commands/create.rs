@@ -3,9 +3,9 @@ use std::fmt::{Display, Formatter};
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 
-use crate::cli::{Command, Configuration, LibraryConfiguration, Project};
+use crate::cli::{Command, Configuration, LibraryConfiguration};
 use crate::github::GitHubLibrary;
-use crate::{Error as CrateError, Fragment, FragmentLibrary, Renderer, Workflow};
+use crate::{Error as CrateError, Fragment, FragmentLibrary, Project, Renderer, Workflow};
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Create<'a> {

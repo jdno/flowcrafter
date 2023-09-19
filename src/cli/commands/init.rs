@@ -3,9 +3,9 @@ use std::fmt::{Display, Formatter};
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 
-use crate::cli::project::Project;
 use crate::cli::{Command, Configuration, LibraryConfiguration};
 use crate::github::{GitHubConfiguration, Owner, Repository};
+use crate::Project;
 
 const REPO_PARSE_ERROR: &str = "repository must be provided in the format 'owner/repository'";
 
@@ -67,7 +67,7 @@ impl Display for Init<'_> {
 
 #[cfg(test)]
 mod tests {
-    use crate::cli::project::TestProject;
+    use crate::{Project, TestProject};
 
     use super::*;
 

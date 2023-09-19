@@ -1,10 +1,12 @@
 use std::fmt::{Display, Formatter};
+use std::ops::Deref;
 
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 
 use crate::cli::{Command, Configuration, LibraryConfiguration};
 use crate::github::GitHubLibrary;
+use crate::local::LocalLibrary;
 use crate::{Error as CrateError, Fragment, FragmentLibrary, Project, Renderer, Workflow};
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -23,22 +25,25 @@ impl<'a> Create<'a> {
         }
     }
 
-    fn init_library(&self, configuration: &'a Configuration) -> impl FragmentLibrary<'a> {
+    fn init_library(&self, configuration: &'a Configuration) -> Box<dyn FragmentLibrary<'a>> {
         match configuration.library() {
             LibraryConfiguration::GitHub(github_configuration) => {
-                GitHubLibrary::new(github_configuration)
+                Box::new(GitHubLibrary::new(github_configuration.clone()))
+            }
+            LibraryConfiguration::Local(local_configuration) => {
+                Box::new(LocalLibrary::new(self.project, local_configuration))
             }
         }
     }
 
-    async fn get_workflow(&self, library: &impl FragmentLibrary<'a>) -> Result<Fragment, Error> {
+    async fn get_workflow(&self, library: &dyn FragmentLibrary<'a>) -> Result<Fragment, Error> {
         library.workflow(self.workflow).await.context(format!(
             "failed to download workflow '{}' from GitHub",
             self.workflow
         ))
     }
 
-    async fn get_jobs(&self, library: &impl FragmentLibrary<'a>) -> Result<Vec<Fragment>, Error> {
+    async fn get_jobs(&self, library: &dyn FragmentLibrary<'a>) -> Result<Vec<Fragment>, Error> {
         let mut jobs = Vec::new();
 
         for job in self.jobs {
@@ -80,8 +85,8 @@ impl<'a> Command for Create<'a> {
         let configuration = Configuration::load(self.project)?;
         let library = self.init_library(&configuration);
 
-        let workflow = self.get_workflow(&library).await?;
-        let jobs = self.get_jobs(&library).await?;
+        let workflow = self.get_workflow(library.deref()).await?;
+        let jobs = self.get_jobs(library.deref()).await?;
 
         let rendered_workflow = self.render_workflow(&workflow, &jobs)?;
         self.save_workflow(&rendered_workflow)?;

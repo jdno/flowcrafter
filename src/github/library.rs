@@ -44,11 +44,11 @@ impl<'a> GitHubLibrary<'a> {
             .send()
             .await?;
 
-        items.items.into_iter().next().ok_or(Error::NotFound(
-            path.into(),
-            self.config.owner().clone(),
-            self.config.repository().clone(),
-        ))
+        items
+            .items
+            .into_iter()
+            .next()
+            .ok_or(Error::NotFound(path.into(), self.to_string()))
     }
 
     fn decode_content(&self, content: Content) -> Result<String, Error> {
@@ -84,7 +84,12 @@ impl<'a> FragmentLibrary<'a> for GitHubLibrary<'a> {
 
 impl Display for GitHubLibrary<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}/{}", self.config.owner(), self.config.repository())
+        write!(
+            f,
+            "repository {}/{}",
+            self.config.owner(),
+            self.config.repository()
+        )
     }
 }
 
@@ -316,7 +321,7 @@ mod tests {
 
         let library = GitHubLibrary::new(&configuration);
 
-        assert_eq!("jdno/flowcrafter", library.to_string());
+        assert_eq!("repository jdno/flowcrafter", library.to_string());
     }
 
     #[test]

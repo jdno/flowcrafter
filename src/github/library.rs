@@ -12,13 +12,13 @@ use crate::fragment::{Fragment, FragmentLibrary};
 use crate::github::GitHubConfiguration;
 use crate::template::Template;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct GitHubLibrary<'a> {
-    config: &'a GitHubConfiguration,
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub struct GitHubLibrary {
+    config: GitHubConfiguration,
 }
 
-impl<'a> GitHubLibrary<'a> {
-    pub fn new(config: &'a GitHubConfiguration) -> Self {
+impl GitHubLibrary {
+    pub fn new(config: GitHubConfiguration) -> Self {
         Self { config }
     }
 
@@ -70,7 +70,7 @@ impl<'a> GitHubLibrary<'a> {
 }
 
 #[async_trait]
-impl<'a> FragmentLibrary<'a> for GitHubLibrary<'a> {
+impl<'a> FragmentLibrary<'a> for GitHubLibrary {
     async fn workflow(&self, name: &'a str) -> Result<Fragment, Error> {
         let path = format!("{name}/workflow.yml");
         self.download(name, &path).await
@@ -82,7 +82,7 @@ impl<'a> FragmentLibrary<'a> for GitHubLibrary<'a> {
     }
 }
 
-impl Display for GitHubLibrary<'_> {
+impl Display for GitHubLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -187,7 +187,7 @@ mod tests {
             .create();
 
         let config = build_config(&server.url());
-        let library = GitHubLibrary::new(&config);
+        let library = GitHubLibrary::new(config);
 
         let workflow = library.workflow("test").await.unwrap();
 
@@ -208,7 +208,7 @@ mod tests {
             .create();
 
         let config = build_config(&server.url());
-        let library = GitHubLibrary::new(&config);
+        let library = GitHubLibrary::new(config);
 
         let job = library.job("test", "job").await.unwrap();
 
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn decode_content() {
         let config = build_config("https://example.com");
-        let library = GitHubLibrary::new(&config);
+        let library = GitHubLibrary::new(config);
 
         let content = serde_json::from_str::<Content>(WORKFLOW_RESPONSE).unwrap();
         let workflow = library.decode_content(content).unwrap();
@@ -271,7 +271,7 @@ mod tests {
             .create();
 
         let config = build_config(&server.url());
-        let library = GitHubLibrary::new(&config);
+        let library = GitHubLibrary::new(config);
 
         let content = library
             .fetch_from_github("test/workflow.yml")
@@ -301,7 +301,7 @@ mod tests {
             .create();
 
         let config = build_config(&server.url());
-        let library = GitHubLibrary::new(&config);
+        let library = GitHubLibrary::new(config);
 
         let error = library
             .fetch_from_github("test/workflow.yml")
@@ -319,7 +319,7 @@ mod tests {
             .repository(Repository::from("flowcrafter"))
             .build();
 
-        let library = GitHubLibrary::new(&configuration);
+        let library = GitHubLibrary::new(configuration);
 
         assert_eq!("repository jdno/flowcrafter", library.to_string());
     }

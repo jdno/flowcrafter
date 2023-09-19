@@ -6,7 +6,7 @@ use crate::error::Error;
 use crate::fragment::Fragment;
 
 #[async_trait]
-pub trait FragmentLibrary<'a>: Display {
+pub trait FragmentLibrary<'a>: Display + Send + Sync {
     async fn workflow(&self, name: &'a str) -> Result<Fragment, Error>;
     async fn job(&self, workflow: &'a str, name: &'a str) -> Result<Fragment, Error>;
 }

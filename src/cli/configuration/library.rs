@@ -1,11 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 use crate::github::GitHubConfiguration;
+use crate::local::LocalConfiguration;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum LibraryConfiguration {
     GitHub(GitHubConfiguration),
+    Local(LocalConfiguration),
 }
 
 #[cfg(test)]

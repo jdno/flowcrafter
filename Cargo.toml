@@ -27,7 +27,7 @@ required-features = ["cli"]
 
 [dependencies]
 anyhow = "1.0.75"
-async-trait = "0.1.68"
+async-trait = "0.1.73"
 base64 = "0.21.0"
 clap = { version = "4.2.7", optional = true, features = ["derive"] }
 octocrab = "0.22.0"

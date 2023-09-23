@@ -35,7 +35,7 @@ serde = { version = "1.0.188", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.25", optional = true }
 thiserror = "1.0.40"
 tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
-typed-builder = "0.14.0"
+typed-builder = "0.16.2"
 url = "2.3.1"
 
 [dev-dependencies]

@@ -42,5 +42,5 @@ url = "2.3.1"
 indoc = "2.0.4"
 mockito = "1.2.0"
 serde_json = "1.0.107"
-tempfile = "3.5.0"
+tempfile = "3.8.0"
 serde_yaml = { version = "0.9.25" }

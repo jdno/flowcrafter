@@ -29,7 +29,7 @@ required-features = ["cli"]
 anyhow = "1.0.75"
 async-trait = "0.1.74"
 base64 = "0.21.5"
-clap = { version = "4.4.7", optional = true, features = ["derive"] }
+clap = { version = "4.4.8", optional = true, features = ["derive"] }
 octocrab = "0.32.0"
 serde = { version = "1.0.190", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.27", optional = true }

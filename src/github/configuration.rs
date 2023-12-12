@@ -10,6 +10,7 @@ use crate::github::repository::Repository;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GitHubConfiguration {
     #[cfg_attr(feature = "serde", serde(default = "default_instance"))]
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "is_default_instance"))]
     #[builder(default = default_instance())]
     instance: Url,
 
@@ -42,6 +43,10 @@ impl Display for GitHubConfiguration {
 
 fn default_instance() -> Url {
     Url::parse("https://api.github.com").expect("failed to parse hard-coded GitHub URL 🤯")
+}
+
+fn is_default_instance(instance: &Url) -> bool {
+    instance == &default_instance()
 }
 
 #[cfg(test)]
@@ -99,6 +104,44 @@ mod tests {
     fn trait_send() {
         fn assert_send<T: Send>() {}
         assert_send::<GitHubConfiguration>();
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn trait_serialize_with_default_instance() {
+        let configuration = GitHubConfiguration::builder()
+            .owner("jdno")
+            .repository("flowcrafter")
+            .build();
+
+        let yaml = indoc!(
+            r#"
+            owner: jdno
+            repository: flowcrafter
+            "#
+        );
+
+        assert_eq!(yaml, serde_yaml::to_string(&configuration).unwrap());
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn trait_serialize_with_custom_instance() {
+        let configuration = GitHubConfiguration::builder()
+            .instance(Url::parse("https://github.example.com").unwrap())
+            .owner("jdno")
+            .repository("flowcrafter")
+            .build();
+
+        let yaml = indoc!(
+            r#"
+            instance: https://github.example.com/
+            owner: jdno
+            repository: flowcrafter
+            "#
+        );
+
+        assert_eq!(yaml, serde_yaml::to_string(&configuration).unwrap());
     }
 
     #[test]

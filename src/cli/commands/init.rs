@@ -40,6 +40,7 @@ impl<'a> Init<'a> {
                     .repository(repository)
                     .build(),
             ))
+            .workflows(Vec::new())
             .build();
 
         config.save(self.project)?;

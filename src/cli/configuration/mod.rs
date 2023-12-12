@@ -7,8 +7,10 @@ use typed_builder::TypedBuilder;
 use crate::Project;
 
 pub use self::library::LibraryConfiguration;
+pub use self::workflow::WorkflowConfiguration;
 
 mod library;
+mod workflow;
 
 const CONFIG_FILE_NAME: &str = "flowcrafter.yml";
 
@@ -18,6 +20,8 @@ const CONFIG_FILE_NAME: &str = "flowcrafter.yml";
 pub struct Configuration {
     #[serde(with = "serde_yaml::with::singleton_map")]
     library: LibraryConfiguration,
+    #[serde(default)]
+    workflows: Vec<WorkflowConfiguration>,
 }
 
 impl Configuration {
@@ -77,6 +81,12 @@ mod tests {
           github:
             owner: jdno
             repository: flowcrafter
+        workflows:
+          - name: rust
+            jobs:
+              - lint
+              - style
+              - test
         "#
     );
 
@@ -88,6 +98,10 @@ mod tests {
                     .repository("flowcrafter")
                     .build(),
             ))
+            .workflows(vec![WorkflowConfiguration::builder()
+                .name("rust")
+                .jobs(vec!["lint".into(), "style".into(), "test".into()])
+                .build()])
             .build()
     }
 
@@ -187,6 +201,17 @@ mod tests {
     #[cfg(feature = "serde")]
     #[test]
     fn trait_deserialize() {
+        let configuration: Configuration = serde_yaml::from_str(SERIALIZED_CONFIGURATION).unwrap();
+
+        assert!(matches!(
+            configuration.library,
+            LibraryConfiguration::GitHub(_)
+        ));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn trait_deserialize_without_workflows() {
         let yaml = indoc!(
             r#"
             ---
@@ -222,12 +247,18 @@ mod tests {
 
         let expected = indoc!(
             r#"
-                library:
-                  github:
-                    instance: https://api.github.com/
-                    owner: jdno
-                    repository: flowcrafter
-                "#
+            library:
+              github:
+                instance: https://api.github.com/
+                owner: jdno
+                repository: flowcrafter
+            workflows:
+            - name: rust
+              jobs:
+              - lint
+              - style
+              - test
+            "#
         );
 
         assert_eq!(expected, yaml);

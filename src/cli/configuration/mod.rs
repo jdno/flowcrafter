@@ -249,7 +249,6 @@ mod tests {
             r#"
             library:
               github:
-                instance: https://api.github.com/
                 owner: jdno
                 repository: flowcrafter
             workflows:

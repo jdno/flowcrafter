@@ -4,6 +4,7 @@ use std::ops::Deref;
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 
+use crate::cli::configuration::WorkflowConfiguration;
 use crate::cli::{Command, Configuration, LibraryConfiguration};
 use crate::github::GitHubLibrary;
 use crate::local::LocalLibrary;
@@ -23,6 +24,18 @@ impl<'a> Create<'a> {
             workflow,
             jobs,
         }
+    }
+
+    async fn download_fragments(
+        &self,
+        configuration: &Configuration,
+    ) -> Result<(Fragment, Vec<Fragment>), Error> {
+        let library = self.init_library(configuration);
+
+        let workflow = self.get_workflow(library.deref()).await?;
+        let jobs = self.get_jobs(library.deref()).await?;
+
+        Ok((workflow, jobs))
     }
 
     fn init_library(&self, configuration: &'a Configuration) -> Box<dyn FragmentLibrary<'a>> {
@@ -77,19 +90,29 @@ impl<'a> Create<'a> {
 
         std::fs::write(path, workflow.to_string()).context("failed to write workflow file")
     }
+
+    fn update_configuration(&self, configuration: &mut Configuration) -> Result<(), Error> {
+        let workflow = WorkflowConfiguration::builder()
+            .name(self.workflow)
+            .jobs(self.jobs.to_vec())
+            .build();
+
+        configuration.add_workflow(workflow);
+        configuration.save(self.project)
+    }
 }
 
 #[async_trait]
 impl<'a> Command for Create<'a> {
     async fn run(&self) -> Result<(), Error> {
-        let configuration = Configuration::load(self.project)?;
-        let library = self.init_library(&configuration);
+        let mut configuration = Configuration::load(self.project)?;
 
-        let workflow = self.get_workflow(library.deref()).await?;
-        let jobs = self.get_jobs(library.deref()).await?;
+        let (workflow, jobs) = self.download_fragments(&configuration).await?;
 
         let rendered_workflow = self.render_workflow(&workflow, &jobs)?;
         self.save_workflow(&rendered_workflow)?;
+
+        self.update_configuration(&mut configuration)?;
 
         Ok(())
     }

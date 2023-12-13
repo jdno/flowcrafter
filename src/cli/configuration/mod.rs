@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use anyhow::{Context, Error};
+use indoc::indoc;
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
@@ -13,6 +14,13 @@ mod library;
 mod workflow;
 
 const CONFIG_FILE_NAME: &str = "flowcrafter.yml";
+const CONFIG_FILE_HEADER: &str = indoc!(
+    r#"
+    # This file is managed by FlowCrafter. Manual changes will be overwritten
+    # the next time you run FlowCrafter.
+    ---
+    "#
+);
 
 #[derive(
     Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Deserialize, Serialize, TypedBuilder,
@@ -25,6 +33,21 @@ pub struct Configuration {
 }
 
 impl Configuration {
+    pub fn workflows(&self) -> &[WorkflowConfiguration] {
+        &self.workflows
+    }
+
+    pub fn add_workflow(&mut self, workflow: WorkflowConfiguration) {
+        for existing_workflow in &mut self.workflows {
+            if existing_workflow.name() == workflow.name() {
+                existing_workflow.set_jobs(workflow.jobs().to_vec());
+                return;
+            }
+        }
+
+        self.workflows.push(workflow);
+    }
+
     pub fn save(&self, project: &Project) -> Result<(), Error> {
         let github_path = project.path().join(".github");
         if !github_path.exists() {
@@ -36,8 +59,10 @@ impl Configuration {
 
         let serialized =
             serde_yaml::to_string(self).context("failed to serialize configuration to YAML")?;
+        let config_with_header = format!("{}{}", CONFIG_FILE_HEADER, serialized);
 
-        std::fs::write(config_path, serialized).context("failed to write configuration to file")?;
+        std::fs::write(config_path, config_with_header)
+            .context("failed to write configuration to file")?;
 
         Ok(())
     }

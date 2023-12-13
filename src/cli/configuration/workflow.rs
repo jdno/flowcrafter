@@ -17,6 +17,10 @@ impl WorkflowConfiguration {
     pub fn jobs(&self) -> &[String] {
         &self.jobs
     }
+
+    pub fn set_jobs(&mut self, jobs: Vec<String>) {
+        self.jobs = jobs;
+    }
 }
 
 #[cfg(test)]

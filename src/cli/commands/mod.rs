@@ -2,6 +2,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use clap::Subcommand;
 
+use crate::cli::commands::update::Update;
 use crate::Project;
 
 pub use self::create::Create;
@@ -9,6 +10,7 @@ pub use self::init::Init;
 
 mod create;
 mod init;
+mod update;
 
 #[async_trait]
 pub trait Command {
@@ -27,6 +29,7 @@ pub enum Commands {
         #[arg(short, long)]
         repository: String,
     },
+    Update,
 }
 
 impl Commands {
@@ -34,6 +37,7 @@ impl Commands {
         match command {
             Commands::Create { workflow, jobs } => Create::new(project, workflow, jobs).run().await,
             Commands::Init { repository } => Init::new(project, repository).run().await,
+            Commands::Update => Update::new(project).run().await,
         }
     }
 }

@@ -35,7 +35,7 @@ indoc = "2.0.4"
 serde = { version = "1.0.193", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.27", optional = true }
 thiserror = "1.0.51"
-tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }
 typed-builder = "0.18.0"
 url = "2.5.0"
 

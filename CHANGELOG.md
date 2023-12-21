@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2023-12-21
+
+### Added
+
+- Build release artifacts for Linux and macOS
+
 ## [0.2.0] - 2023-12-13
 
 ### Added
@@ -24,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initialize FlowCrafter in a GitHub repository
 - Create workflows by combining templates from GitHub
 
-[unreleased]: https://github.com/jdno/flowcrafter/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/jdno/flowcrafter/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/jdno/flowcrafter/releases/tag/v0.3.0
 [0.2.0]: https://github.com/jdno/flowcrafter/releases/tag/v0.2.0
 [0.1.0]: https://github.com/jdno/flowcrafter/releases/tag/v0.1.0

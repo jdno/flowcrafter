@@ -20,7 +20,7 @@ runs:
       id: check
       shell: bash
       run: |
-        if git diff --cached --exit-code --quiet; then
+        if git diff --exit-code --quiet; then
           echo 'No changes detected'
           echo "changed=false" >> $GITHUB_OUTPUT
         else

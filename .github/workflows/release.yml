@@ -259,7 +259,7 @@ jobs:
         with:
           tag: ${{ needs.plan.outputs.tag }}
           allowUpdates: true
-          updateOnlyUnreleased: true
+          updateOnlyUnreleased: false
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true
           prerelease: ${{ fromJson(needs.host.outputs.val).announcement_is_prerelease }}

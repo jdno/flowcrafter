@@ -5,4 +5,3 @@ rules:
   line-length:
     ignore: |
       .github/workflows/*
-      action.yml

@@ -33,7 +33,7 @@ clap = { version = "4.4.11", optional = true, features = ["derive"] }
 octocrab = "0.32.0"
 indoc = "2.0.4"
 serde = { version = "1.0.193", optional = true, features = ["derive"] }
-serde_yaml = { version = "0.9.28", optional = true }
+serde_yaml = { version = "0.9.30", optional = true }
 thiserror = "1.0.51"
 tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }
 typed-builder = "0.18.0"
@@ -43,7 +43,7 @@ url = "2.5.0"
 mockito = "1.2.0"
 serde_json = "1.0.108"
 tempfile = "3.8.1"
-serde_yaml = { version = "0.9.28" }
+serde_yaml = { version = "0.9.30" }
 
 [profile.dist]
 inherits = "release"

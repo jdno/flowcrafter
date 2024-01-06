@@ -32,7 +32,7 @@ base64 = "0.21.5"
 clap = { version = "4.4.13", optional = true, features = ["derive"] }
 octocrab = "0.32.0"
 indoc = "2.0.4"
-serde = { version = "1.0.194", optional = true, features = ["derive"] }
+serde = { version = "1.0.195", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.30", optional = true }
 thiserror = "1.0.56"
 tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }

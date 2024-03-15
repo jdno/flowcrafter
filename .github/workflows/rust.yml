@@ -6,6 +6,7 @@ name: Rust
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 env:
   CARGO_INCREMENTAL: 0
@@ -25,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: detect-changes
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v43
         with:
           files: |
             **/*.rs
@@ -33,7 +34,7 @@ jobs:
 
       - name: Print changed files
         run: |
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+          for file in ${{ steps.detect-changes.outputs.all_changed_files }}; do
             echo "$file"
           done
 
@@ -43,9 +44,6 @@ jobs:
 
     needs: detect-changes
     if: needs.detect-changes.outputs.any_changed == 'true'
-
-    container:
-      image: ghcr.io/jdno/rust:main
 
     steps:
       - name: Checkout code
@@ -67,9 +65,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.any_changed == 'true'
 
-    container:
-      image: ghcr.io/jdno/rust:main
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -87,9 +82,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.any_changed == 'true'
 
-    container:
-      image: ghcr.io/jdno/rust:main
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -105,7 +97,7 @@ jobs:
     if: needs.detect-changes.outputs.any_changed == 'true'
 
     container:
-      image: xd009642/tarpaulin:develop-nightly
+      image: xd009642/tarpaulin:0.27.3
       options: --security-opt seccomp=unconfined
 
     steps:
@@ -117,17 +109,19 @@ jobs:
 
       - name: Run tests with test coverage
         run: |
-          cargo +nightly tarpaulin \
-            --verbose \
+          cargo tarpaulin \
             --all-features \
-            --workspace \
-            --timeout 120 \
-            --target-dir target/tarpaulin-target/ \
+            --engine llvm \
+            --out xml \
             --skip-clean \
-            --out xml
+            --target-dir target/tarpaulin-target/ \
+            --timeout 120 \
+            --verbose \
+            --workspace
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 

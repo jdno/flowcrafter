@@ -6,6 +6,7 @@ name: JSON
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   detect-changes:
@@ -21,14 +22,14 @@ jobs:
 
       - name: Get changed files
         id: detect-changes
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v43
         with:
           files: |
             **/*.json
 
       - name: Print changed files
         run: |
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+          for file in ${{ steps.detect-changes.outputs.all_changed_files }}; do
             echo "$file"
           done
 

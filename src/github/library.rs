@@ -177,7 +177,7 @@ mod tests {
 
     #[tokio::test]
     async fn workflow() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let mock = server
             .mock("GET", "/repos/owner/name/contents/test/workflow.yml")
             .match_query(mockito::Matcher::Any)
@@ -198,7 +198,7 @@ mod tests {
 
     #[tokio::test]
     async fn job() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let mock = server
             .mock("GET", "/repos/owner/name/contents/test/job.yml")
             .match_query(mockito::Matcher::Any)
@@ -261,7 +261,7 @@ mod tests {
 
     #[tokio::test]
     async fn fetch_from_github() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let mock = server
             .mock("GET", "/repos/owner/name/contents/test/workflow.yml")
             .match_query(mockito::Matcher::Any)
@@ -284,7 +284,7 @@ mod tests {
 
     #[tokio::test]
     async fn fetch_from_github_not_found() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let mock = server
             .mock("GET", "/repos/owner/name/contents/test/workflow.yml")
             .match_query(mockito::Matcher::Any)

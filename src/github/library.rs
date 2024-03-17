@@ -42,7 +42,8 @@ impl GitHubLibrary {
             .get_content()
             .path(path)
             .send()
-            .await?;
+            .await
+            .map_err(|_| Error::NotFound(path.into(), self.to_string()))?;
 
         items
             .items
@@ -309,7 +310,7 @@ mod tests {
             .unwrap_err();
 
         mock.assert();
-        assert!(error.to_string().contains("Not Found"));
+        assert!(matches!(error, Error::NotFound(_, _)));
     }
 
     #[test]

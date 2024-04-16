@@ -41,7 +41,7 @@ url = "2.5.0"
 
 [dev-dependencies]
 mockito = "1.4.0"
-serde_json = "1.0.114"
+serde_json = "1.0.116"
 tempfile = "3.10.1"
 serde_yaml = { version = "0.9.33" }
 

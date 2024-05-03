@@ -97,7 +97,7 @@ jobs:
     if: needs.detect-changes.outputs.any_changed == 'true'
 
     container:
-      image: xd009642/tarpaulin:0.28.0
+      image: xd009642/tarpaulin:0.29.0
       options: --security-opt seccomp=unconfined
 
     steps:

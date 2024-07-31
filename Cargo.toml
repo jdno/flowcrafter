@@ -30,7 +30,7 @@ anyhow = "1.0.82"
 async-trait = "0.1.80"
 base64 = "0.22.1"
 clap = { version = "4.5.4", optional = true, features = ["derive"] }
-octocrab = "0.38.0"
+octocrab = "0.39.0"
 indoc = "2.0.5"
 serde = { version = "1.0.200", optional = true, features = ["derive"] }
 serde_yaml = { version = "0.9.33", optional = true }
